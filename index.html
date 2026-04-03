@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Juan José Mirabal Guerra | Galería</title>
+    <style>
+        :root {
+            --bg-primary: #000000;
+            --bg-card: #1a1a1a;
+            --text-primary: #ffffff;
+            --accent: #ff6b6b;
+            --border: #222222;
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            padding-top: 40px;
+        }
+
+        .artwork-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .artwork-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .card-content { padding: 15px; }
+
+        .price { color: var(--accent); font-weight: bold; font-size: 1.1em; }
+
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-top: 10px;
+        }
+        .available { background: #2ecc7122; color: #2ecc71; }
+        .sold { background: #e74c3c22; color: #e74c3c; }
+
+        header { text-align: center; padding: 20px; }
+        .profile-img { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <img id="user-photo" src="" class="profile-img" style="display:none;">
+        <h1>Juan José Mirabal Guerra</h1>
+        <p>Artesano y Artista Plástico</p>
+    </header>
+
+    <div id="gallery-container" class="gallery-grid">
+        <p style="text-align:center; grid-column: 1/-1;">Cargando galería...</p>
+    </div>
+
+    <script>
+        async function fetchGallery() {
+            const container = document.getElementById('gallery-container');
+            try {
+                // BUSCAMOS EL ARCHIVO EN LA CARPETA data/
+                // Agregamos un número al azar (?v=...) para que el celular no use la versión vieja
+                const response = await fetch('data/artworks.json?v=' + Date.now());
+                
+                if (!response.ok) throw new Error("No se encuentra el archivo artworks.json");
+                
+                const data = await response.json();
+
+                // 1. Ponemos tu foto de perfil
+                if(data.profileImage) {
+                    const img = document.getElementById('user-photo');
+                    img.src = data.profileImage;
+                    img.style.display = 'inline-block';
+                }
+
+                // 2. Limpiamos el contenedor y ponemos las obras
+                container.innerHTML = "";
+
+                if (data.artworks.length === 0) {
+                    container.innerHTML = "<p>Aún no hay obras en la galería.</p>";
+                    return;
+                }
+
+                data.artworks.forEach(art => {
+                    const card = document.createElement('div');
+                    card.className = 'artwork-card';
+                    card.innerHTML = `
+                        <img src="${art.image}" alt="${art.title}" onerror="this.src='https://via.placeholder.com/400?text=Error+al+cargar+imagen'">
+                        <div class="card-content">
+                            <h3>${art.title}</h3>
+                            <p style="color:#888; font-size:0.9em;">${art.technique} | ${art.size}</p>
+                            <p class="price">${art.priceUSD} USD / ${art.priceCUP} CUP</p>
+                            <span class="status ${art.sold ? 'sold' : 'available'}">
+                                ${art.sold ? 'VENDIDA' : 'DISPONIBLE'}
+                            </span>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = `
+                    <div style="text-align:center; grid-column: 1/-1; color: #ff6b6b;">
+                        <p>⚠️ Error al cargar los datos.</p>
+                        <p>Asegúrate de que el archivo <b>artworks.json</b> esté dentro de una carpeta llamada <b>data</b>.</p>
+                    </div>`;
+            }
+        }
+
+        // Ejecutar al cargar la página
+        window.onload = fetchGallery;
+    </script>
+</body>
+</html>

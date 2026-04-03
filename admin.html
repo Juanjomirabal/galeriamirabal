@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Administrador - Galería Mirabal</title>
+    <style>
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: #111111;
+            --bg-card: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --accent: #ff6b6b;
+            --accent-gradient: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+            --border: #222222;
+            --hover: #2a2a2a;
+            --success: #00d26a;
+            --error: #e74c3c;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+        
+        .header {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        
+        .tab {
+            padding: 12px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .tab.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--accent);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-family: inherit;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-full {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .artwork-list {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .artwork-item {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            border: 1px solid var(--border);
+        }
+        
+        .artwork-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        
+        .artwork-info {
+            flex: 1;
+        }
+        
+        .artwork-info h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .artwork-info p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .artwork-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .artwork-actions button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        
+        .btn-edit {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-delete {
+            background: var(--error);
+            color: white;
+        }
+        
+        .config-section {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid #00d4ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .config-section h3 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .config-section p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+        
+        .config-section a {
+            color: #00d4ff;
+        }
+        
+        .status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            max-width: 300px;
+        }
+        
+        .status.show {
+            transform: translateX(0);
+        }
+        
+        .status.success {
+            background: var(--success);
+        }
+        
+        .status.error {
+            background: var(--error);
+        }
+        
+        .status.info {
+            background: #3498db;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+        
+        .preview-image {
+            width: 100%;
+            max-width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-top: 10px;
+            border: 2px solid var(--border);
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎨 Panel de Administración</h1>
+        <p>Gestiona tu galería de arte</p>
+    </div>
+    
+    <div class="status" id="status"></div>
+
+    <div class="container">
+        <!-- Configuración de GitHub -->
+        <div class="config-section" id="configSection">
+            <h3>🔧 Configuración de GitHub</h3>
+            <p>Para guardar cambios necesitas un Token de acceso personal con permisos <strong>repo</strong>.</p>
+            <p><a href="https://github.com/settings/tokens/new" target="_blank">Crear token aquí →</a></p>
+            
+            <div class="form-group">
+                <label>Token de GitHub</label>
+                <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxx">
+            </div>
+            <div class="form-group">
+                <label>Usuario</label>
+                <input type="text" id="githubUser" value="Juanjomirabal" placeholder="tu-usuario">
+            </div>
+            <div class="form-group">
+                <label>Repositorio</label>
+                <input type="text" id="githubRepo" value="galeriamirabal" placeholder="tu-repo">
+            </div>
+            <button class="btn btn-primary btn-full" onclick="saveConfig()">
+                💾 Guardar Configuración
+            </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('profile')">👤 Perfil</div>
+            <div class="tab" onclick="showTab('artworks')">🖼️ Obras</div>
+            <div class="tab" onclick="showTab('add')">➕ Agregar</div>
+        </div>
+
+        <!-- Sección Perfil -->
+        <div class="section active" id="profileSection">
+            <div class="card">
+                <div class="card-title">Foto de Perfil (Hero)</div>
+                <div class="form-group">
+                    <label>URL de la imagen (Imgur recomendado)</label>
+                    <input type="text" id="profileImageUrl" placeholder="https://i.imgur.com/xxxxx.jpg">
+                    <img id="profilePreview" class="preview-image" style="display:none;">
+                </div>
+                <button class="btn btn-primary btn-full" onclick="updateProfileImage()">
+                    🔄 Actualizar Foto
+                </button>
+            </div>
+        </div>
+
+        <!-- Sección Obras -->
+        <div class="section" id="artworksSection">
+            <div class="card">
+                <div class="card-title">Mis Obras</div>
+                <div id="artworksList" class="artwork-list">
+                    <div class="empty-state">Cargando obras...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección Agregar -->
+        <div class="section" id="addSection">
+            <div class="card">
+                <div class="card-title">➕ Nueva Obra</div>
+                
+                <div class="form-group">
+                    <label>Título</label>
+                    <input type="text" id="newTitle" placeholder="Nombre de la obra">
+                </div>
+                
+                <div class="form-group">
+                    <label>Imagen (URL de Imgur)</label>
+                    <input type="text" id="newImage" placeholder="https://i.imgur.com/xxxxx.jpg">
+                </div>
+                
+                <div class="form-group">
+                    <label>Técnica</label>
+                    <input type="text" id="newTechnique" placeholder="Óleo sobre lienzo">
+                </div>
+                
+                <div class="form-group">
+                    <label>Tamaño</label>
+                    <input type="text" id="newSize" placeholder="50x60 cm">
+                </div>
+                
+                <div class="form-group">
+                    <label>Precio USD</label>
+                    <input type="number" id="newPriceUSD" placeholder="100">
+                </div>
+                
+                <div class="form-group">
+                    <label>Precio CUP</label>
+                    <input type="number" id="newPriceCUP" placeholder="2500">
+                </div>
+                
+                <div class="form-group">
+                    <label>Año</label>
+                    <input type="text" id="newYear" placeholder="2024">
+                </div>
+                
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select id="newCategory">
+                        <option value="naturaleza">Naturaleza Muerta</option>
+                        <option value="retrato">Retratos</option>
+                        <option value="abstracto">Abstracto</option>
+                        <option value="paisaje">Paisajes</option>
+                        <option value="escultura">Escultura</option>
+                        <option value="artesanias">Artesanias</option>
+                        <option value="figurativo">Figurativo</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="newDescription" placeholder="Descripción de la obra..."></textarea>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="newSold">
+                    <label for="newSold">Marcar como vendida</label>
+                </div>
+                
+                <button class="btn btn-success btn-full" onclick="addArtwork()" style="margin-top: 20px;">
+                    ➕ Agregar Obra
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar -->
+    <div class="section" id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:2000; overflow-y:auto;">
+        <div class="container" style="padding-top: 40px;">
+            <div class="card">
+                <div class="card-title">✏️ Editar Obra</div>
+                <input type="hidden" id="editId">
+                
+                <div class="form-group">
+                    <label>Título</label>
+                    <input type="text" id="editTitle">
+                </div>
+                
+                <div class="form-group">
+                    <label>Imagen URL</label>
+                    <input type="text" id="editImage">
+                </div>
+                
+                <div class="form-group">
+                    <label>Técnica</label>
+                    <input type="text" id="editTechnique">
+                </div>
+                
+                <div class="form-group">
+                    <label>Tamaño</label>
+                    <input type="text" id="editSize">
+                </div>
+                
+                <div class="form-group">
+                    <label>Precio USD</label>
+                    <input type="number" id="editPriceUSD">
+                </div>
+                
+                <div class="form-group">
+                    <label>Precio CUP</label>
+                    <input type="number" id="editPriceCUP">
+                </div>
+                
+                <div class="form-group">
+                    <label>Año</label>
+                    <input type="text" id="editYear">
+                </div>
+                
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select id="editCategory">
+                        <option value="naturaleza">Naturaleza Muerta</option>
+                        <option value="retrato">Retratos</option>
+                        <option value="abstracto">Abstracto</option>
+                        <option value="paisaje">Paisajes</option>
+                        <option value="escultura">Escultura</option>
+                        <option value="artesanias">Artesanias</option>
+                        <option value="figurativo">Figurativo</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="editDescription"></textarea>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="editSold">
+                    <label for="editSold">Vendida</label>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-success btn-full" onclick="saveEdit()">
+                        💾 Guardar Cambios
+                    </button>
+                    <button class="btn btn-secondary btn-full" onclick="closeEditModal()">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // CONFIGURACIÓN
+        // ==========================================
+        
+        let config = {
+            token: '',
+            user: 'Juanjomirabal',
+            repo: 'galeriamirabal',
+            branch: 'main'
+        };
+        
+        let artworks = [];
+        let profileImage = '';
+        let fileSha = null; // SHA del archivo para actualizarlo
+
+        // ==========================================
+        // INICIALIZACIÓN
+        // ==========================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            loadConfig();
+            loadData();
+        });
+
+        function loadConfig() {
+            const saved = localStorage.getItem('githubConfig');
+            if (saved) {
+                config = JSON.parse(saved);
+                document.getElementById('githubToken').value = config.token;
+                document.getElementById('githubUser').value = config.user;
+                document.getElementById('githubRepo').value = config.repo;
+                
+                if (config.token) {
+                    document.getElementById('configSection').style.display = 'none';
+                }
+            }
+        }
+
+        function saveConfig() {
+            config.token = document.getElementById('githubToken').value.trim();
+            config.user = document.getElementById('githubUser').value.trim() || 'Juanjomirabal';
+            config.repo = document.getElementById('githubRepo').value.trim() || 'galeriamirabal';
+            
+            if (!config.token) {
+                showStatus('❌ Token requerido', 'error');
+                return;
+            }
+            
+            localStorage.setItem('githubConfig', JSON.stringify(config));
+            document.getElementById('configSection').style.display = 'none';
+            showStatus('✅ Configuración guardada', 'success');
+            loadData();
+        }
+
+        // ==========================================
+        // CARGAR DATOS DESDE GITHUB
+        // ==========================================
+        
+        async function loadData() {
+            try {
+                const timestamp = new Date().getTime();
+                const url = `https://${config.user}.github.io/${config.repo}/datos/configurado.json?nocache=${timestamp}`;
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) throw new Error('No se pudo cargar');
+                
+                const data = await response.json();
+                
+                // Verificar formato
+                if (Array.isArray(data)) {
+                    artworks = data;
+                    profileImage = '';
+                } else if (data.artworks) {
+                    artworks = data.artworks;
+                    profileImage = data.profileImage || '';
+                } else {
+                    artworks = [];
+                }
+                
+                // Actualizar UI
+                document.getElementById('profileImageUrl').value = profileImage;
+                updateProfilePreview();
+                renderArtworksList();
+                
+                showStatus(`✅ ${artworks.length} obras cargadas`, 'success');
+                
+                // Obtener SHA para poder guardar después
+                await getFileSha();
+                
+            } catch (error) {
+                console.error('Error cargando:', error);
+                showStatus('⚠️ Usando datos locales', 'info');
+                artworks = [];
+                renderArtworksList();
+            }
+        }
+
+        async function getFileSha() {
+            if (!config.token) return;
+            
+            try {
+                const apiUrl = `https://api.github.com/repos/${config.user}/${config.repo}/contents/datos/configurado.json?ref=${config.branch}`;
+                
+                const response = await fetch(apiUrl, {
+                    headers: {
+                        'Authorization': `token ${config.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    fileSha = data.sha;
+                }
+            } catch (error) {
+                console.error('Error obteniendo SHA:', error);
+            }
+        }
+
+        // ==========================================
+        // GUARDAR EN GITHUB
+        // ==========================================
+        
+        async function saveToGitHub() {
+            if (!config.token) {
+                showStatus('❌ Configura el token primero', 'error');
+                document.getElementById('configSection').style.display = 'block';
+                return false;
+            }
+            
+            showStatus('💾 Guardando en GitHub...', 'info');
+            
+            try {
+                const dataToSave = {
+                    profileImage: profileImage,
+                    artworks: artworks,
+                    lastUpdate: new Date().toISOString()
+                };
+                
+                const content = btoa(unescape(encodeURIComponent(JSON.stringify(dataToSave, null, 2))));
+                
+                const body = {
+                    message: 'Actualización desde administrador - ' + new Date().toLocaleString(),
+                    content: content,
+                    branch: config.branch
+                };
+                
+                if (fileSha) {
+                    body.sha = fileSha;
+                }
+                
+                const apiUrl = `https://api.github.com/repos/${config.user}/${config.repo}/contents/datos/configurado.json`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${config.token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Error al guardar');
+                }
+                
+                const result = await response.json();
+                fileSha = result.content.sha;
+                
+                showStatus('✅ Guardado en GitHub', 'success');
+                return true;
+                
+            } catch (error) {
+                console.error('Error guardando:', error);
+                showStatus('❌ Error: ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        // ==========================================
+        // PERFIL / HERO IMAGE
+        // ==========================================
+        
+        function updateProfilePreview() {
+            const url = document.getElementById('profileImageUrl').value;
+            const preview = document.getElementById('profilePreview');
+            if (url) {
+                preview.src = url;
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        document.getElementById('profileImageUrl').addEventListener('input', updateProfilePreview);
+
+        async function updateProfileImage() {
+            profileImage = document.getElementById('profileImageUrl').value.trim();
+            
+            if (await saveToGitHub()) {
+                showStatus('✅ Foto de perfil actualizada', 'success');
+            }
+        }
+
+        // ==========================================
+        // GESTIÓN DE OBRAS
+        // ==========================================
+        
+        function renderArtworksList() {
+            const container = document.getElementById('artworksList');
+            
+            if (artworks.length === 0) {
+                container.innerHTML = '<div class="empty-state">No hay obras. Agrega la primera.</div>';
+                return;
+            }
+            
+            container.innerHTML = artworks.map((artwork, index) => `
+                <div class="artwork-item">
+                    <img src="${artwork.image}" alt="${artwork.title}" onerror="this.src='https://via.placeholder.com/80'">
+                    <div class="artwork-info">
+                        <h3>${artwork.title} ${artwork.sold ? '🔴' : ''}</h3>
+                        <p>${artwork.technique} • $${artwork.priceUSD} USD</p>
+                    </div>
+                    <div class="artwork-actions">
+                        <button class="btn-edit" onclick="editArtwork(${index})">✏️</button>
+                        <button class="btn-delete" onclick="deleteArtwork(${index})">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function addArtwork() {
+            const newArtwork = {
+                id: Date.now(),
+                title: document.getElementById('newTitle').value || 'Sin título',
+                image: document.getElementById('newImage').value || '',
+                technique: document.getElementById('newTechnique').value || '-',
+                size: document.getElementById('newSize').value || '-',
+                priceUSD: parseInt(document.getElementById('newPriceUSD').value) || 0,
+                priceCUP: parseInt(document.getElementById('newPriceCUP').value) || 0,
+                year: document.getElementById('newYear').value || '2024',
+                category: document.getElementById('newCategory').value,
+                description: document.getElementById('newDescription').value || '',
+                sold: document.getElementById('newSold').checked
+            };
+            
+            artworks.unshift(newArtwork);
+            
+            if (await saveToGitHub()) {
+                // Limpiar formulario
+                document.querySelectorAll('#addSection input, #addSection textarea').forEach(el => {
+                    if (el.type !== 'checkbox') el.value = '';
+                    else el.checked = false;
+                });
+                document.getElementById('newCategory').selectedIndex = 0;
+                
+                renderArtworksList();
+                showTab('artworks');
+                showStatus('✅ Obra agregada', 'success');
+            }
+        }
+
+        function editArtwork(index) {
+            const artwork = artworks[index];
+            document.getElementById('editId').value = index;
+            document.getElementById('editTitle').value = artwork.title;
+            document.getElementById('editImage').value = artwork.image;
+            document.getElementById('editTechnique').value = artwork.technique;
+            document.getElementById('editSize').value = artwork.size;
+            document.getElementById('editPriceUSD').value = artwork.priceUSD;
+            document.getElementById('editPriceCUP').value = artwork.priceCUP;
+            document.getElementById('editYear').value = artwork.year;
+            document.getElementById('editCategory').value = artwork.category;
+            document.getElementById('editDescription').value = artwork.description;
+            document.getElementById('editSold').checked = artwork.sold;
+            
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        async function saveEdit() {
+            const index = parseInt(document.getElementById('editId').value);
+            
+            artworks[index] = {
+                id: artworks[index].id,
+                title: document.getElementById('editTitle').value,
+                image: document.getElementById('editImage').value,
+                technique: document.getElementById('editTechnique').value,
+                size: document.getElementById('editSize').value,
+                priceUSD: parseInt(document.getElementById('editPriceUSD').value) || 0,
+                priceCUP: parseInt(document.getElementById('editPriceCUP').value) || 0,
+                year: document.getElementById('editYear').value,
+                category: document.getElementById('editCategory').value,
+                description: document.getElementById('editDescription').value,
+                sold: document.getElementById('editSold').checked
+            };
+            
+            if (await saveToGitHub()) {
+                closeEditModal();
+                renderArtworksList();
+                showStatus('✅ Cambios guardados', 'success');
+            }
+        }
+
+        async function deleteArtwork(index) {
+            if (!confirm('¿Eliminar esta obra permanentemente?')) return;
+            
+            artworks.splice(index, 1);
+            
+            if (await saveToGitHub()) {
+                renderArtworksList();
+                showStatus('✅ Obra eliminada', 'success');
+            }
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // ==========================================
+        // UI UTILIDADES
+        // ==========================================
+        
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Section').classList.add('active');
+        }
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status ' + type + ' show';
+            
+            setTimeout(() => {
+                status.classList.remove('show');
+            }, 3000);
+        }
+
+        // Cerrar modal al hacer click fuera
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) closeEditModal();
+        });
+    </script>
+</body>
+</html>
