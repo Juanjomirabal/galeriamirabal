@@ -1,0 +1,15 @@
+[
+  {
+    "id": 1,
+    "title": "Obra de prueba",
+    "image": "https://i.imgur.com/XXXXXXX.jpg",
+    "technique": "Óleo",
+    "size": "50x60 cm",
+    "priceUSD": 100,
+    "priceCUP": 2500,
+    "year": "2024",
+    "category": "naturaleza",
+    "description": "Descripción",
+    "sold": false
+  }
+]
